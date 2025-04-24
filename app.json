@@ -1,17 +1,22 @@
 {
   "expo": {
-    "name": "GerenciadorDeMedicamentos",
-    "slug": "GerenciadorDeMedicamentos",
+    "name": "CalculadoraDeAgua",
+    "slug": "calculadora-de-agua",
     "version": "1.0.0",
     "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "sdkVersion": "52.0.0",
+    "primaryColor": "#87CEEB",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
