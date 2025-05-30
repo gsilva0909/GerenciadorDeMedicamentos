@@ -2,4 +2,9 @@ Links Aulas:
 https://www.youtube.com/watch?v=A5yIPclvjJk&t=1690s
 
 Extensoes:
+-- Imagens como email e de senha
 npm i react-native-vector-icons
+
+-- Nageção entre telas
+https://reactnavigation.org/docs/stack-navigator/
+https://reactnavigation.org/docs/bottom-tab-navigator/
