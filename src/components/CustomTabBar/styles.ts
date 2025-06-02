@@ -15,6 +15,7 @@ export const style =StyleSheet.create({
         shadowOpacity: 0.29,
         shadowRadius: 4.65,
         elevation: 7,
+        justifyContent: 'space-around'
     },
     TabItem:{
         flex:1,
@@ -30,7 +31,7 @@ export const style =StyleSheet.create({
         // borderWidth:1,
         top:-30,
         zIndex:9999,
-        backgroundColor:themes.colors.primary,
+        backgroundColor:themes.colors.primary, 
         // paddingHorizontal:20
     },
     row:{

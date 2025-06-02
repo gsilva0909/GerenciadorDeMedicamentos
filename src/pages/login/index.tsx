@@ -1,8 +1,8 @@
-import React from "react";
+import React, {useState} from "react";
 import { style } from "./styles";
 import Logo from "../../assets/logo.png";
 import { Input } from "../../components/input";
-import { Text, View, Image, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import { Text, View, Image, Alert } from "react-native";
 import { themes } from "../../global/themes";
 import {MaterialIcons,Octicons} from '@expo/vector-icons';
 import { Button } from "../../components/Button";
@@ -11,10 +11,10 @@ import { useNavigation,NavigationProp  } from '@react-navigation/native';
 export default function Login() {
 
     const navigation = useNavigation<NavigationProp<any>>();
-    const [email, setEmail] = React.useState('a');
-    const [password, setPassword] = React.useState('a');
-    const [loading, setLoading] = React.useState(false);
-    const [showPassword,setShowPassword] = React.useState(false);
+    const [email, setEmail] = useState('a');
+    const [password, setPassword] = useState('a');
+    const [loading, setLoading] = useState(false);
+    const [showPassword,setShowPassword] = useState(false);
 
     async function getLogin() { 
         try {
@@ -25,7 +25,7 @@ export default function Login() {
                 return;
             }
 
-            navigation.navigate("BottomRoutes");
+            navigation.reset({routes: [{name: 'BottomRoutes'}]});
         }
         catch (error) {
             console.log(error);
@@ -36,7 +36,7 @@ export default function Login() {
     }
 
     async function getRegister() {
-        return Alert.alert('Alerta','Ainda não temos essa funcionalidade, mas em breve teremos!');
+        return Alert.alert('Calma Calabreso','Ainda não temos essa funcionalidade, mas em breve teremos!');
     }
 
     async function getSenhaF() {

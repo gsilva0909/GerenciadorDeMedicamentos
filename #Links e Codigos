@@ -8,3 +8,7 @@ npm i react-native-vector-icons
 -- Nageção entre telas
 https://reactnavigation.org/docs/stack-navigator/
 https://reactnavigation.org/docs/bottom-tab-navigator/
+
+-- Baixe o Yarn
+npm install -g yarn
+yarn add react-native-modalize
