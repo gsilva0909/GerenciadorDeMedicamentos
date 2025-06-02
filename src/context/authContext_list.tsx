@@ -4,13 +4,15 @@ import { Modalize } from "react-native-modalize";
 import { MaterialIcons} from '@expo/vector-icons';
 import { Input } from "../components/input";
 import { themes } from "../global/themes";
-import { Flag } from "../components/Flag";
+import { Flag, FlagPriority} from "../components/Flag";
 
 export const AuthContext:any = createContext({});
 
 export const flags = [
-    { caption: 'Obrigatorio', color: themes.colors.red},
-    { caption: 'Opicional', color: themes.colors.blue }
+    { caption: 'Urgente', color: themes.colors.red },         // Remédio que não pode atrasar
+    { caption: 'Importante', color: themes.colors.orange },    // Remédio essencial, mas com alguma flexibilidade
+    { caption: 'Rotina', color: themes.colors.green },         // Remédio de uso diário, mas sem urgência
+    { caption: 'Opcional', color: themes.colors.blue },        // Suplementos ou remédios que podem ser pulados
 ];
 
 export const AuthProviderList = (props: any) => {
@@ -32,7 +34,7 @@ export const AuthProviderList = (props: any) => {
         return (
             flags.map((item, index) => (
                 <TouchableOpacity key={index}>
-                    <Flag 
+                    <FlagPriority 
                         caption={item.caption}
                         color={item.color}
                         selected={false}
@@ -127,6 +129,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 20
     },
     label: {
+        fontSize: 16,
         fontWeight: 'bold',
         color: '#000'
     },
@@ -139,8 +142,8 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     rowFlag: {
-        width:60,
-        height:30,
+        width:380,
+        height:70,
         flexDirection: 'row',
         gap: 10,
         marginTop: 10,

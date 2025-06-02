@@ -11,6 +11,14 @@ export const style = StyleSheet.create({
         backgroundColor:themes.colors.red,
         borderRadius:10
     },
+    containerPriority:{
+        width:80,
+        height:60,
+        alignItems:'center',
+        justifyContent:'center',
+        backgroundColor:themes.colors.green,
+        borderRadius:10
+    },
     caption:{
         color:'#FFF'
     }

@@ -20,3 +20,16 @@ export function Flag({...rest}:Props){
         </TouchableOpacity>
     )
 }
+
+export function FlagPriority({...rest}:Props){
+    return (
+        <TouchableOpacity 
+            style={[
+                style.containerPriority, 
+                { backgroundColor: rest?.color },
+                rest?.selected && { borderWidth: 2 }
+            ]}>
+            <Text style={{color: '#FFF'}}>{rest.caption}</Text>
+        </TouchableOpacity>
+    )
+}
