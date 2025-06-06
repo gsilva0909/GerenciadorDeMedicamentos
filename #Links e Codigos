@@ -1,9 +1,11 @@
 Links Aulas:
-https://www.youtube.com/watch?v=A5yIPclvjJk&t=1690s
+https://www.youtube.com/watch?v=A5yIPclvjJk&list=PLN5FV-HmjCA8UKWLep7O31PtQYqML8-Wd
 
 Extensoes:
 -- Imagens como email e de senha
 npm i react-native-vector-icons
+-- Horario
+npx expo install @react-native-community/datetimepicker
 
 -- Nageção entre telas
 https://reactnavigation.org/docs/stack-navigator/

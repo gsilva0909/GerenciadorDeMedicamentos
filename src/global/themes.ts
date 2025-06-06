@@ -26,5 +26,6 @@ export const themes = {
         gold: '#ffd700',
         darkgray: '#a9a9a9',
         lightblue: '#add8e6',
+        transparent: 'rgba(0, 0, 0, 0.5)',
     }
 }

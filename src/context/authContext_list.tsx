@@ -1,10 +1,12 @@
-import React, {createContext, useContext, useEffect, useRef} from "react";
-import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import React, {createContext, useContext, useEffect, useState, useRef} from "react";
+import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
 import { Modalize } from "react-native-modalize";
 import { MaterialIcons} from '@expo/vector-icons';
 import { Input } from "../components/input";
 import { themes } from "../global/themes";
 import { Flag, FlagPriority} from "../components/Flag";
+import CustomDateTimePicker from "../components/CustomDateTimePicker";
+import { style } from "../pages/login/styles";
 
 export const AuthContext:any = createContext({});
 
@@ -17,6 +19,13 @@ export const flags = [
 
 export const AuthProviderList = (props: any) => {
     const modalizeRef = useRef<Modalize>(null);
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [selectedFlag, setSelectedFlag] = useState('urgente');
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showTimePicker, setShowTimePicker] = useState(false);
 
     const onOpen = () => {
         modalizeRef?.current.open();
@@ -25,10 +34,6 @@ export const AuthProviderList = (props: any) => {
     const onClose = () => {
         modalizeRef?.current.close();
     }
-
-    useEffect(() => {
-        onOpen()
-    }, []);
 
     const _renderFlags = () => {
         return (
@@ -44,9 +49,19 @@ export const AuthProviderList = (props: any) => {
         )
     }
 
+    const handleDateChange = (date) => {
+        setSelectedDate(date);
+    }
+    const handleTimeChange = (date) => {
+        setSelectedTime(date);
+    }
+
     const _container = () => {
         return(
-        <View style={styles.container}>
+        <KeyboardAvoidingView 
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
             <View style={styles.header}>
                 <TouchableOpacity style={styles.TabItemButtonRed} onPress={() => onClose()}>
                     <MaterialIcons 
@@ -68,6 +83,8 @@ export const AuthProviderList = (props: any) => {
                 <Input
                     title="Titulo"
                     labelStyle={styles.label}
+                    value={title}
+                    onChangeText={setTitle}
                 />
                 <Input
                     title="Descrição"
@@ -75,11 +92,41 @@ export const AuthProviderList = (props: any) => {
                     height={100}
                     multiline
                     numberOfLines={5}
+                    value={description}
+                    onChangeText={setDescription}
                 />
                 <View style={{width: '40%'}}>
-                    <Input 
-                        title="Horario"
-                        labelStyle={styles.label}
+                    <View style={{flexDirection: 'row', gap: 10, width: '100%'}}>
+                        <TouchableOpacity onPress={()=> setShowTimePicker(true)} style={{width: 200}}>
+                            <Input 
+                                title="Data limite"
+                                labelStyle={styles.label}
+                                editable={false}
+                                value={selectedDate.toLocaleDateString()}
+                                onPress={() => setShowDatePicker(true)}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{width: 100}}>
+                            <Input 
+                                title="Hora limite"
+                                labelStyle={styles.label}
+                                editable={false}
+                                value={selectedDate.toLocaleTimeString()}
+                                onPress={() => setShowDatePicker(true)}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                    <CustomDateTimePicker 
+                        onDateChange={handleDateChange}
+                        setShow={setShowDatePicker}
+                        show={showDatePicker}
+                        type={'date'}
+                    />
+                    <CustomDateTimePicker 
+                        onDateChange={handleTimeChange}
+                        setShow={setShowTimePicker}
+                        show={showTimePicker}
+                        type={'date'}
                     />
                 </View>
                 <View style={styles.containerFlag}>
@@ -89,7 +136,7 @@ export const AuthProviderList = (props: any) => {
                     </View>
                 </View>
             </View>
-        </View>
+        </KeyboardAvoidingView>
         )
     }
 
@@ -98,7 +145,7 @@ export const AuthProviderList = (props: any) => {
             {props.children}
             <Modalize 
                 ref={modalizeRef}
-                childrenStyle={{ height: Dimensions.get('window').height/1.3 }}
+                childrenStyle={{ height: Dimensions.get('window').height/1.7 }}
                 adjustToContentHeight={true}
             >
                 {_container()}

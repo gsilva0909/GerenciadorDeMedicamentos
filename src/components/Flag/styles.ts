@@ -13,7 +13,7 @@ export const style = StyleSheet.create({
     },
     containerPriority:{
         width:80,
-        height:60,
+        height:50,
         alignItems:'center',
         justifyContent:'center',
         backgroundColor:themes.colors.green,
