@@ -1,5 +1,5 @@
 import {Dimensions, StyleSheet} from 'react-native';
-import { themes } from '../../global/themes';
+import { themas } from '../../global/themes';
 
 
 export const style = StyleSheet.create({
@@ -8,8 +8,8 @@ export const style = StyleSheet.create({
         height: 40,
         borderWidth: 1,
         borderRadius: 40,
-        borderColor: themes.colors.lightgray,
-        backgroundColor: themes.colors.bgScreen,
+        borderColor: themas.Colors.lightgray,
+        backgroundColor: themas.Colors.bgScreen,
         marginTop: 10,
         flexDirection: 'row',
         alignItems: 'center',
@@ -20,11 +20,11 @@ export const style = StyleSheet.create({
         height: "100%",
         width: '93%',
         borderRadius: 40,
-        backgroundColor: themes.colors.bgScreen,
+        backgroundColor: themas.Colors.bgScreen,
     },
     titleInput: {
         marginLeft: 5,
-        color: themes.colors.gray,
+        color: themas.Colors.gray,
         marginTop: 5,
         fontWeight: 'bold',
         fontSize: 16,

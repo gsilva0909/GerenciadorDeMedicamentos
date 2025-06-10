@@ -1,9 +1,9 @@
 import React, {useState} from "react";
 import { style } from "./styles";
 import Logo from "../../assets/logo.png";
-import { Input } from "../../components/input";
+import { Input } from "../../components/Input";
 import { Text, View, Image, Alert } from "react-native";
-import { themes } from "../../global/themes";
+import { themas } from "../../global/themes";
 import {MaterialIcons,Octicons} from '@expo/vector-icons';
 import { Button } from "../../components/Button";
 import { useNavigation,NavigationProp  } from '@react-navigation/native';
@@ -36,11 +36,7 @@ export default function Login() {
     }
 
     async function getRegister() {
-        return Alert.alert('Calma Calabreso','Ainda não temos essa funcionalidade, mas em breve teremos!');
-    }
-
-    async function getSenhaF() {
-        return Alert.alert('Serio?','Tambem não sabemos sua senha, trate de lembrar!');
+        return Alert.alert('Em Desenvolvimento','Ainda não temos essa funcionalidade, entre com qualquer valor');
     }
 
     return (
@@ -78,9 +74,8 @@ export default function Login() {
                 loading={loading} 
                 onPress={()=>getLogin()}
             />
-            <Text style={style.textBottom} onPress={getRegister}> Não tem conta? <Text style={{ color: themes.colors.primary }}>Clique aqui!</Text> </Text>
-            <Text style={style.textBottom} onPress={getSenhaF}> Esqueci minha senha </Text>
         </View>
+            <Text style={style.textBottom} onPress={getRegister}> Não tem conta? <Text style={{ color: themas.Colors.primary }}>Clique aqui!</Text> </Text>
     </View>
   );
 }

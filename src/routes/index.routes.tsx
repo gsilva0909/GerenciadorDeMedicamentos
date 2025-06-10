@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from "../pages/login";
 import BottomRoutes from "./bottom.routes";
 
-export default function Index() {
+export default function Routes (){
     const Stack = createStackNavigator();
 
     return (

@@ -4,13 +4,12 @@ import { themas } from "../../global/themes";
 
 export const style = StyleSheet.create({
     container:{
-        width:70,
-        height:30,
+        position:'absolute',
+        width:'100%',
+        height:'100%',
+        zIndex:9999,
+        backgroundColor:themas.Colors.blackTransparent,
         alignItems:'center',
-        justifyContent:'center',
-        borderRadius:4
-    },
-    caption:{
-        color:'#FFF'
+        justifyContent:'center'
     }
 })

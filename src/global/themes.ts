@@ -1,6 +1,7 @@
-export const themes = {
-    colors: {
-        primary: '#878af6',
+export const themas = {
+    Colors: {
+        primary: '#ff0000',
+        primary2: '#878af6',
         secondary: '#ffffff',
         lightgray: '#d7d8d7',
         gray: 'gray',
@@ -27,5 +28,21 @@ export const themes = {
         darkgray: '#a9a9a9',
         lightblue: '#add8e6',
         transparent: 'rgba(0, 0, 0, 0.5)',
+        blueLigth: '#d0e1f9',
+        lightGray: '#f0f0f0',
+        redLigth: '#ffcccc',
+        greenLigth: '#ccffcc',
+        yellowLigth: '#ffffcc',
+        darkBlue: '#00008b',
+        darkRed: '#8b0000',
+        darkGreen: '#006400',
+        darkGray: '#a9a9a9',
+        darkPurple: '#4b0082',
+        darkOrange: '#ff8c00',
+        darkPink: '#ff1493',
+        azulClaro: '#6EC3E0',
+        verdeFresco: '#7AC74F',
+        laranjaSuave: '#FFA447',
+        lavanda: '#B399D4'
     }
 }

@@ -1,31 +1,36 @@
 import React, {createContext, useContext, useEffect, useState, useRef} from "react";
-import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
+import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Modalize } from "react-native-modalize";
-import { MaterialIcons} from '@expo/vector-icons';
-import { Input } from "../components/input";
-import { themes } from "../global/themes";
-import { Flag, FlagPriority} from "../components/Flag";
+import { MaterialIcons, AntDesign } from '@expo/vector-icons';
+import { Input } from "../components/Input";
+import { themas } from "../global/themes";
+import { Flag } from "../components/Flag";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomDateTimePicker from "../components/CustomDateTimePicker";
-import { style } from "../pages/login/styles";
+import { Loading } from "../components/Loading";
 
-export const AuthContext:any = createContext({});
+export const AuthContextList:any= createContext({});
 
-export const flags = [
-    { caption: 'Urgente', color: themes.colors.red },         // Remédio que não pode atrasar
-    { caption: 'Importante', color: themes.colors.orange },    // Remédio essencial, mas com alguma flexibilidade
-    { caption: 'Rotina', color: themes.colors.green },         // Remédio de uso diário, mas sem urgência
-    { caption: 'Opcional', color: themes.colors.blue },        // Suplementos ou remédios que podem ser pulados
+const flags = [
+    { caption: '1 Por Dia', color: themas.Colors.azulClaro },
+    { caption: 'Cada 2h', color: themas.Colors.verdeFresco },
+    { caption: 'Cada 4h', color: themas.Colors.laranjaSuave },
+    { caption: 'Cada 8h', color: themas.Colors.lavanda },
 ];
 
-export const AuthProviderList = (props: any) => {
-    const modalizeRef = useRef<Modalize>(null);
+export const AuthProviderList = (props) => {
+    const modalizeRef = useRef(null);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [selectedFlag, setSelectedFlag] = useState('urgente');
+    const [selectedFlag, setSelectedFlag] = useState('1 Por Dia');
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
+    const [taskList, setTaskList] = useState([]);
+    const [taskListBackup,setTaskListBackup]= useState([]);
+    const [item,setItem] = useState(0);
+    const [loading,setLoading]= useState(false)
 
     const onOpen = () => {
         modalizeRef?.current.open();
@@ -38,11 +43,11 @@ export const AuthProviderList = (props: any) => {
     const _renderFlags = () => {
         return (
             flags.map((item, index) => (
-                <TouchableOpacity key={index}>
-                    <FlagPriority 
+                <TouchableOpacity key={index} onPress={() => { setSelectedFlag(item.caption) }}>
+                    <Flag 
                         caption={item.caption}
                         color={item.color}
-                        selected={false}
+                        selected={item.caption == selectedFlag}
                     />
                 </TouchableOpacity>
             ))
@@ -55,33 +60,155 @@ export const AuthProviderList = (props: any) => {
     const handleTimeChange = (date) => {
         setSelectedTime(date);
     }
+    
+    useEffect(() => {
+        get_taskList();
+    }, []);
+
+    const handleSave = async () => {
+        const newItem = {
+            item: item !== 0 ? item : Date.now(),
+            title,
+            description,
+            flag: selectedFlag,
+            timeLimit: new Date(
+                selectedDate.getFullYear(),
+                selectedDate.getMonth(),
+                selectedDate.getDate(),
+                selectedTime.getHours(),
+                selectedTime.getMinutes()
+            ).toISOString()
+        };
+        onClose();
+    
+        try {
+            setLoading(true)
+            const storedData = await AsyncStorage.getItem('taskList');
+            let taskList = storedData ? JSON.parse(storedData) : [];
+
+            const itemIndex = taskList.findIndex((task) => task.item === newItem.item);
+
+            if (itemIndex >= 0) {
+                taskList[itemIndex] = newItem;
+            } else {
+                taskList.push(newItem);
+            }
+    
+            await AsyncStorage.setItem('taskList', JSON.stringify(taskList));
+            setTaskList(taskList);
+            setTaskListBackup(taskList)
+            setData()
+            
+        } catch (error) {
+            console.error("Erro ao salvar o item:", error);
+            onOpen()
+        }finally{
+            setLoading(false)
+        }
+    };
+    
+    const filter = (t:string) => {
+        if(taskList.length == 0)return
+        const array = taskListBackup
+        const campos = ['title','description']
+        if (t) {
+            const searchTerm = t.trim().toLowerCase(); 
+            
+            const filteredArr = array.filter((item) =>{ 
+                for(let i =0; i<campos.length; i++){
+                    if(item[campos[i].trim()].trim().toLowerCase().includes(searchTerm))
+                        return true
+                }
+            });
+    
+            setTaskList(filteredArr);
+        } else {
+            setTaskList(array);
+        }
+    }
+
+    const handleEdit = async (itemToEdit:PropCard) => {
+        setTitle(itemToEdit.title);
+        setDescription(itemToEdit.description);
+        setSelectedFlag(itemToEdit.flag);
+        setItem(itemToEdit.item)
+        
+        const timeLimit = new Date(itemToEdit.timeLimit);
+        setSelectedDate(timeLimit);
+        setSelectedTime(timeLimit);
+        
+        onOpen(); 
+    };
+    
+    const handleDelete = async (itemToDelete) => {
+        try {
+            setLoading(true)
+            const storedData = await AsyncStorage.getItem('taskList');
+            const taskList = storedData ? JSON.parse(storedData) : [];
+            
+            const updatedTaskList = taskList.filter(item => item.item !== itemToDelete.item);
+    
+            await AsyncStorage.setItem('taskList', JSON.stringify(updatedTaskList));
+            setTaskList(updatedTaskList);
+            setTaskListBackup(updatedTaskList)
+        } catch (error) {
+            console.error("Erro ao excluir o item:", error);
+        }finally{
+            setLoading(false)
+        }
+    };
+    
+    async function get_taskList() {
+        try {
+            setLoading(true)
+            const storedData = await AsyncStorage.getItem('taskList');
+            const taskList = storedData ? JSON.parse(storedData) : [];
+            setTaskList(taskList);
+            setTaskListBackup(taskList)
+        } catch (error) {
+            console.log(error);
+        }finally{
+            setLoading(false)
+        }
+    }
+
+    const setData = ()=>{
+        setTitle('');
+        setDescription('');
+        setSelectedFlag('urgente');
+        setItem(0)
+        setSelectedDate(new Date());
+        setSelectedTime(new Date());
+    }
 
     const _container = () => {
         return(
         <KeyboardAvoidingView 
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
         >
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.header}>
                 <TouchableOpacity style={styles.TabItemButtonRed} onPress={() => onClose()}>
                     <MaterialIcons 
                         name="close"
                         size={30}
-                        color={themes.colors.white}
+                        color={themas.Colors.white}
                     />
                 </TouchableOpacity>
-                <Text style={styles.title}>Criar Registro</Text>
-                <TouchableOpacity style={styles.TabItemButtonGreen}>
+                <Text style={styles.title}>{item != 0?'Editar tarefa':'Criar tarefa'}</Text>
+                <TouchableOpacity style={styles.TabItemButtonGreen} onPress={handleSave}>
                     <MaterialIcons 
                         name="check"
                         size={30}
-                        color={themes.colors.white}
+                        color={themas.Colors.white}
                     />
                 </TouchableOpacity>
             </View>
             <View style={styles.content}>
                 <Input
-                    title="Titulo"
+                    title="Remedio"
                     labelStyle={styles.label}
                     value={title}
                     onChangeText={setTitle}
@@ -91,66 +218,79 @@ export const AuthProviderList = (props: any) => {
                     labelStyle={styles.label}
                     height={100}
                     multiline
+                    textAlignVertical="top"
                     numberOfLines={5}
                     value={description}
                     onChangeText={setDescription}
                 />
-                <View style={{width: '40%'}}>
-                    <View style={{flexDirection: 'row', gap: 10, width: '100%'}}>
-                        <TouchableOpacity onPress={()=> setShowTimePicker(true)} style={{width: 200}}>
-                            <Input 
-                                title="Data limite"
-                                labelStyle={styles.label}
-                                editable={false}
-                                value={selectedDate.toLocaleDateString()}
-                                onPress={() => setShowDatePicker(true)}
-                            />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{width: 100}}>
-                            <Input 
-                                title="Hora limite"
-                                labelStyle={styles.label}
-                                editable={false}
-                                value={selectedDate.toLocaleTimeString()}
-                                onPress={() => setShowDatePicker(true)}
-                            />
-                        </TouchableOpacity>
-                    </View>
-                    <CustomDateTimePicker 
-                        onDateChange={handleDateChange}
-                        setShow={setShowDatePicker}
-                        show={showDatePicker}
-                        type={'date'}
-                    />
-                    <CustomDateTimePicker 
-                        onDateChange={handleTimeChange}
-                        setShow={setShowTimePicker}
-                        show={showTimePicker}
-                        type={'date'}
-                    />
-                </View>
                 <View style={styles.containerFlag}>
-                    <Text style={styles.label}>Flags</Text>
+                    <Text style={styles.label}>Quando Tomar?</Text>
                     <View style={styles.rowFlag}>
                         {_renderFlags()}
                     </View>
                 </View>
+                <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
+                    <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999 }}>
+                        <Input 
+                            title="Data Inicio"
+                            labelStyle={styles.label}
+                            editable={false}
+                            value={selectedDate.toLocaleDateString()}
+                            onPress={() => setShowDatePicker(true)} 
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999 }}>
+                        <Input 
+                            title="Data Final"
+                            labelStyle={styles.label}
+                            editable={false}
+                            value={selectedDate.toLocaleDateString()}
+                            onPress={() => setShowDatePicker(true)} 
+                        />
+                    </TouchableOpacity>
+                </View>
+                <View  style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
+                    <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
+                        <Input 
+                            title="Horario"
+                            labelStyle={styles.label}
+                            editable={false}
+                            value={selectedTime.toLocaleTimeString()}
+                            onPress={() => setShowTimePicker(true)}
+                        />
+                    </TouchableOpacity>
+                </View>
+                
+                <CustomDateTimePicker 
+                    onDateChange={handleDateChange}
+                    setShow={setShowDatePicker}
+                    show={showDatePicker}
+                    type={'date'}
+                />
+                <CustomDateTimePicker 
+                    onDateChange={handleTimeChange}
+                    setShow={setShowTimePicker}
+                    show={showTimePicker}
+                    type={'time'}
+                />
             </View>
+        </ScrollView>
         </KeyboardAvoidingView>
         )
     }
 
     return (
-        <AuthContext.Provider value={{onOpen}}>
+        <AuthContextList.Provider value={{onOpen, taskList,handleEdit,handleDelete,taskListBackup,filter}}>
+            <Loading loading={loading}/>
             {props.children}
             <Modalize 
                 ref={modalizeRef}
-                childrenStyle={{ height: Dimensions.get('window').height/1.7 }}
+                childrenStyle={{ height: 600 }}
                 adjustToContentHeight={true}
             >
                 {_container()}
             </Modalize>
-        </AuthContext.Provider>
+        </AuthContextList.Provider>
     );
 }
 
@@ -201,7 +341,7 @@ export const styles = StyleSheet.create({
         borderRadius:40,
         justifyContent:'center',
         alignItems:'center',
-        backgroundColor:themes.colors.red,
+        backgroundColor:themas.Colors.red,
     },
     TabItemButtonGreen:{
         width:40,
@@ -209,8 +349,8 @@ export const styles = StyleSheet.create({
         borderRadius:40,
         justifyContent:'center',
         alignItems:'center',
-        backgroundColor:themes.colors.green,
+        backgroundColor:themas.Colors.green,
     }
 });
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AuthContextList);

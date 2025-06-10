@@ -1,5 +1,5 @@
 import { StyleSheet,Dimensions} from "react-native";
-import { themes } from "../../global/themes";
+import { themas } from "../../global/themes";
 
 export const style =StyleSheet.create({
     TabArea:{
@@ -31,7 +31,7 @@ export const style =StyleSheet.create({
         // borderWidth:1,
         top:-30,
         zIndex:9999,
-        backgroundColor:themes.colors.primary, 
+        backgroundColor:themas.Colors.primary, 
         // paddingHorizontal:20
     },
     row:{

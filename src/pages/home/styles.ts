@@ -1,22 +1,23 @@
 import {Dimensions, StyleSheet} from 'react-native';
-import { themes } from '../../global/themes';
+import { themas } from '../../global/themes';
 
 export const style = StyleSheet.create({
     container: {
         flex: 1,
-        alignContent: 'center',
+        alignItems: 'center',
     },
     header: {
         width: '100%',
         height: Dimensions.get('window').height/6,
-        backgroundColor: themes.colors.primary,
-        paddingHorizontal: 20,
+        backgroundColor: themas.Colors.red,
         justifyContent: 'center',
+        alignItems: 'center',
     },
     greeting: {
-        fontSize: 20,
-        color: themes.colors.white,
+        fontSize: 25,
+        color: themas.Colors.white,
         marginTop: 20,
+        fontWeight: 'regular',
     },
     boxInput: {
         width: '80%'
@@ -27,14 +28,14 @@ export const style = StyleSheet.create({
     },
     card: {
         width: '100%',
-        height: 60,
-        backgroundColor: themes.colors.white,
+        minHeight: 60,
+        backgroundColor: themas.Colors.white,
         marginTop: 6,
         borderRadius: 10,
         justifyContent: 'center',
         padding: 10,
         borderWidth: 1,
-        borderColor: themes.colors.gray,
+        borderColor: themas.Colors.gray,
     },
     rowCard: {
         flexDirection: 'row',
@@ -64,6 +65,6 @@ export const style = StyleSheet.create({
         fontWeight:'bold'
     },
     descriptionCard:{
-        color:themes.colors.gray
+        color:themas.Colors.gray
     },
 });
