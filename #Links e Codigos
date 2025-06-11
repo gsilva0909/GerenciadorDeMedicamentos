@@ -1,0 +1,19 @@
+Links Aulas:
+https://www.youtube.com/watch?v=A5yIPclvjJk&list=PLN5FV-HmjCA8UKWLep7O31PtQYqML8-Wd
+
+Extensoes:
+-- Imagens como email e de senha
+npm i react-native-vector-icons
+-- Horario
+npx expo install @react-native-community/datetimepicker
+
+-- Nageção entre telas
+https://reactnavigation.org/docs/stack-navigator/
+https://reactnavigation.org/docs/bottom-tab-navigator/
+
+-- Baixe o Yarn
+npm install -g yarn
+yarn add react-native-modalize
+
+-- comando para atualizar expo (H1)
+npx expo install expo@53.0.9 expo-status-bar@~2.2.3 react@19.0.0 react-native@0.79.2 react-native-reanimated@~3.17.4 react-native-safe-area-context@5.4.0 react-native-screens@~4.10.0 react-dom@19.0.0 react-native-web@^0.20.0 @expo/metro-runtime@~5.0.4
