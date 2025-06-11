@@ -7,9 +7,10 @@ import { FlatList } from "react-native-gesture-handler";
 import { Ball } from "../../components/Ball";
 import { Flag } from "../../components/Flag";
 import { themas } from "../../global/themes";
-import {AuthContextList}   from "../../context/authContext_list";
+import { AuthContextList }   from "../../context/authContext_list";
 import { Swipeable } from 'react-native-gesture-handler';
 import { formatDateToBR } from "../../global/funtions";
+import { AuthContextType, PropCard } from "../../global/Props";
 
 export default function Home (){
 
@@ -93,12 +94,13 @@ export default function Home (){
                     size={30} 
                     color={themas.Colors.white}
                 />
-                <Text style={[style.greeting, { marginTop: 0 }]}> Minha Lista De Remedios</Text>
+                <Text style={[style.greeting, { marginTop: 0 }]}> Medicamentos</Text>
                 <View style={style.boxInput}> 
                     <Input 
                         IconLeft={MaterialIcons}
                         iconLeftName="search"
                         onChangeText={(t)=>filter(t)}
+                        multiline={false}
                     />
                 </View>
             </View>

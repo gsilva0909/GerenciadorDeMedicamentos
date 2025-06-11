@@ -8,6 +8,7 @@ import { Flag } from "../components/Flag";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomDateTimePicker from "../components/CustomDateTimePicker";
 import { Loading } from "../components/Loading";
+import { AuthContextType, PropCard } from "../global/Props";
 
 export const AuthContextList:any= createContext({});
 
@@ -212,6 +213,8 @@ export const AuthProviderList = (props) => {
                     labelStyle={styles.label}
                     value={title}
                     onChangeText={setTitle}
+                    
+                multiline={false}
                 />
                 <Input
                     title="Descrição"
@@ -239,7 +242,7 @@ export const AuthProviderList = (props) => {
                             onPress={() => setShowDatePicker(true)} 
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999 }}>
+                    <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999}}>
                         <Input 
                             title="Data Final"
                             labelStyle={styles.label}

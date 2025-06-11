@@ -1,4 +1,4 @@
-interface AuthContextType {
+export interface AuthContextType {
     taskList:Array<PropCard>,
     onOpen:void,
 	handleEdit:Function,
@@ -6,7 +6,7 @@ interface AuthContextType {
 	taskListBackup:Array<PropCard>,
 	filter: (t: string) => void
 }
-type PropCard = {
+export type PropCard = {
     description: string, 
 	flag:PropFlags,
 	item: number, 
@@ -14,10 +14,4 @@ type PropCard = {
 	title: string
 }
 
-// Define PropFlags conforme a frequência de uso do remédio
-// 'aCada3h'     = tomar a cada 3 horas
-// 'umaVezDia'   = tomar 1 vez ao dia
-// 'duasVezesDia' = tomar 2 vezes ao dia
-// 'usoContinuo' = uso contínuo, rotina
-// 'opcional'    = pode ser pulado, suplemento
-type PropFlags = 'cada3H' | 'cada1D' | 'duasVezesDia' | 'usoContinuo' | 'opcional';
+type PropFlags = 'urgente'|'opcional'

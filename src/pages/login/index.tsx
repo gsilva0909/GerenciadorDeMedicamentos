@@ -42,10 +42,10 @@ export default function Login() {
     return (
     <View style={style.container}>
         <View style={style.boxTop}>
-            <Image
-                source={Logo}
-                style={style.logo}
-                resizeMode="contain"
+            <MaterialIcons 
+                name="medication"
+                size={90} 
+                color={themas.Colors.red}
             />
             <Text style={style.text}>Gerenciador De Medicamentos</Text>
         </View>
@@ -56,6 +56,7 @@ export default function Login() {
                 onChangeText={setEmail}
                 IconRigth={MaterialIcons}
                 iconRightName="email"
+                multiline={false}
             />
             <Input 
                 title="SENHA"
@@ -75,7 +76,7 @@ export default function Login() {
                 onPress={()=>getLogin()}
             />
         </View>
-            <Text style={style.textBottom} onPress={getRegister}> Não tem conta? <Text style={{ color: themas.Colors.primary }}>Clique aqui!</Text> </Text>
+            <Text style={style.textBottom}> Não tem conta? <Text style={{ color: themas.Colors.primary }} onPress={getRegister} >Clique aqui!</Text> </Text>
     </View>
   );
 }

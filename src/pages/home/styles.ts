@@ -8,7 +8,7 @@ export const style = StyleSheet.create({
     },
     header: {
         width: '100%',
-        height: Dimensions.get('window').height/6,
+        height: Dimensions.get('window').height/4,
         backgroundColor: themas.Colors.red,
         justifyContent: 'center',
         alignItems: 'center',
