@@ -14,4 +14,4 @@ export type PropCard = {
 	title: string
 }
 
-type PropFlags = 'urgente'|'opcional'
+type PropFlags = '1 Por Dia'|'Cada 2h'|'Cada 4h'|'Cada 8h';

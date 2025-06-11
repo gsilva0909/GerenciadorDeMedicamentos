@@ -43,6 +43,7 @@ export const themas = {
         azulClaro: '#6EC3E0',
         verdeFresco: '#7AC74F',
         laranjaSuave: '#FFA447',
+        grayLigth: '#F0F0F0',
         lavanda: '#B399D4'
     }
 }

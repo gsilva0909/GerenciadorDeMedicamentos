@@ -9,16 +9,17 @@ export const style = StyleSheet.create({
         paddingHorizontal: 20,
     },
     header: {
-        width: 380,
+        width: Dimensions.get("window").height / 2.2,
         height: Dimensions.get("window").height / 4,
         backgroundColor: themas.Colors.red,
         justifyContent: "center",
         alignItems: "center",
     },
     boxCenter: {
-        width: 380,
+        width: Dimensions.get("window").height / 2.2,
         height: Dimensions.get("window").height / 2,
         justifyContent: "center",
+        backgroundColor: themas.Colors.grayLigth,
     },
     boxCenterLeft: {
         width: 180,
@@ -35,7 +36,7 @@ export const style = StyleSheet.create({
         marginLeft: 10,
     },
     boxEnd: {
-        width: 380,
+        width: Dimensions.get("window").height / 2.2,
         height: Dimensions.get("window").height / 6.5,
         alignItems: "center",
     },
@@ -62,12 +63,43 @@ export const style = StyleSheet.create({
         color: "#333",
     },
     input: {
-        width: 110,
-        height: 50,
-        backgroundColor: themas.Colors.gray,
-        borderRadius: 10,
-        paddingHorizontal: 15,
-        marginVertical: 10,
-        fontSize: 16,
+    width: 220,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    marginVertical: 6,
+    fontSize: 16,
+    backgroundColor: '#f9f9f9'
     },
+    rowButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        marginVertical: 8,
+    },
+    editSquare: {
+        width: 40,
+        height: 40,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+        elevation: 2,
+    },
+    buttonWhite: {
+        backgroundColor: 'white',
+        borderRadius: 8,
+        paddingVertical: 16,
+        paddingHorizontal: 24,
+        alignItems: 'center',
+        flex: 1,
+        elevation: 2,
+    },
+    buttonText: {
+        color: '#333',
+        fontSize: 16,
+        fontWeight: 'bold'
+    }
 })

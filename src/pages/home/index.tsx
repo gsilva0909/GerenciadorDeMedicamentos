@@ -1,5 +1,5 @@
 import React,{ useState,useContext,useRef} from "react";
-import { Text, View, TouchableOpacity, StatusBar} from "react-native";
+import { Text, View, TouchableOpacity, StatusBar, ImageBackground} from "react-native";
 import { style } from "./styles";
 import { Input } from "../../components/Input";
 import { MaterialIcons, AntDesign} from "@expo/vector-icons";
@@ -11,6 +11,7 @@ import { AuthContextList }   from "../../context/authContext_list";
 import { Swipeable } from 'react-native-gesture-handler';
 import { formatDateToBR } from "../../global/funtions";
 import { AuthContextType, PropCard } from "../../global/Props";
+import LoginWall from "../../assets/login-wall.png";
 
 export default function Home (){
 
@@ -48,7 +49,6 @@ export default function Home (){
     }
 
     const _renderCard = (item:PropCard,index:number) =>{        
-        // Busca a cor correta baseada no caption da flag
         const flagObj = [
             { caption: '1 Por Dia', color: themas.Colors.azulClaro },
             { caption: 'Cada 2h', color: themas.Colors.verdeFresco },
@@ -104,16 +104,18 @@ export default function Home (){
                     />
                 </View>
             </View>
-            <View style={style.boxList}>
-                <FlatList 
-                    data={taskList}
-                    style={{marginTop:40,paddingHorizontal:30}}
-                    keyExtractor={(item,index)=>item.item.toString()}
-                    renderItem={({item,index})=>{
-                        return(_renderCard(item,index))
-                    }}
-                />
-            </View>
+            <ImageBackground source={LoginWall} style={{flex: 3, width: '100%'}} resizeMode="cover">
+                <View style={style.boxList}>
+                    <FlatList 
+                        data={taskList}
+                        style={{marginTop:40,paddingHorizontal:30}}
+                        keyExtractor={(item,index)=>item.item.toString()}
+                        renderItem={({item,index})=>{
+                            return(_renderCard(item,index))
+                        }}
+                    />
+                </View>
+            </ImageBackground>
         </View>
     );
 }

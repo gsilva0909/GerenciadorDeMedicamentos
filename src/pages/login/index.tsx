@@ -2,11 +2,12 @@ import React, {useState} from "react";
 import { style } from "./styles";
 import Logo from "../../assets/logo.png";
 import { Input } from "../../components/Input";
-import { Text, View, Image, Alert } from "react-native";
+import { Text, View, Image, Alert, ImageBackground } from "react-native";
 import { themas } from "../../global/themes";
 import {MaterialIcons,Octicons} from '@expo/vector-icons';
 import { Button } from "../../components/Button";
 import { useNavigation,NavigationProp  } from '@react-navigation/native';
+import LoginWall from "../../assets/login-wall.png";
 
 export default function Login() {
 
@@ -40,7 +41,8 @@ export default function Login() {
     }
 
     return (
-    <View style={style.container}>
+    <ImageBackground source={LoginWall} style={{flex: 1}}>
+      <View style={[style.container, {backgroundColor: 'rgba(255,255,255,0.85)'}]}>
         <View style={style.boxTop}>
             <MaterialIcons 
                 name="medication"
@@ -57,6 +59,7 @@ export default function Login() {
                 IconRigth={MaterialIcons}
                 iconRightName="email"
                 multiline={false}
+                placeholder="Digite seu e-mail"
             />
             <Input 
                 title="SENHA"
@@ -67,6 +70,7 @@ export default function Login() {
                 onIconRigthPress={()=>setShowPassword(!showPassword)}
                 secureTextEntry={showPassword}
                 multiline={false}
+                placeholder="Digite sua senha"
             />
         </View>
         <View style={style.boxBottom}>
@@ -77,6 +81,7 @@ export default function Login() {
             />
         </View>
             <Text style={style.textBottom}> Não tem conta? <Text style={{ color: themas.Colors.primary }} onPress={getRegister} >Clique aqui!</Text> </Text>
-    </View>
+      </View>
+    </ImageBackground>
   );
 }

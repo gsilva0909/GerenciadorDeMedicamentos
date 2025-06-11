@@ -67,6 +67,10 @@ export const AuthProviderList = (props) => {
     }, []);
 
     const handleSave = async () => {
+        if (!title || title.trim() === "") {
+            Alert.alert("Atenção", "O nome do remédio não pode ser vazio.");
+            return;
+        }
         const newItem = {
             item: item !== 0 ? item : Date.now(),
             title,
@@ -176,7 +180,7 @@ export const AuthProviderList = (props) => {
     const setData = ()=>{
         setTitle('');
         setDescription('');
-        setSelectedFlag('urgente');
+        setSelectedFlag('1 Por Dia');
         setItem(0)
         setSelectedDate(new Date());
         setSelectedTime(new Date());
