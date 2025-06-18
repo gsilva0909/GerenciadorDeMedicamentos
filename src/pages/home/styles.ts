@@ -67,4 +67,7 @@ export const style = StyleSheet.create({
     descriptionCard:{
         color:themas.Colors.gray
     },
+    Icon:{
+        alignItems:"center"
+    }
 });

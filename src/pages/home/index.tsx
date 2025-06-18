@@ -29,7 +29,7 @@ export default function Home (){
         </View>
     );
     const renderLeftActions = () => (
-        <View style={[style.Button,{backgroundColor:themas.Colors.blueLigth}]}>
+        <View style={[style.Button,{backgroundColor:themas.Colors.blue}]}>
             <AntDesign 
                 name="edit"
                 size={20}
@@ -68,7 +68,18 @@ export default function Home (){
                 <View style={style.card}>
                     <View style={style.rowCard}>
                         <View style={style.rowCardLeft}>
-                            <Ball color={color} />
+                            <TouchableOpacity style={style.Icon} onPress={() => handleEdit(item)}>
+                                <MaterialIcons
+                                    name="edit"
+                                    size={20}
+                                    color={themas.Colors.blue}
+                                />
+                                <MaterialIcons 
+                                    name="keyboard-arrow-left"
+                                    size={30} 
+                                    color={themas.Colors.blue}
+                                />
+                            </TouchableOpacity>
                             <View>
                                 <Text style={style.titleCard}>{item.title}</Text>
                                 <Text style={style.descriptionCard}>{item.description}</Text>
@@ -79,6 +90,18 @@ export default function Home (){
                             caption={item.flag} 
                             color={color} 
                         />
+                        <TouchableOpacity style={style.Icon} onPress={() => handleDelete(item)}>
+                            <MaterialIcons
+                                name="delete"
+                                size={20}
+                                color={themas.Colors.red}
+                            />
+                            <MaterialIcons 
+                                name="keyboard-arrow-right"
+                                size={30} 
+                                color={themas.Colors.red}
+                            />
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Swipeable >

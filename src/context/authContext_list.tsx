@@ -25,8 +25,10 @@ export const AuthProviderList = (props) => {
     const [description, setDescription] = useState('');
     const [selectedFlag, setSelectedFlag] = useState('1 Por Dia');
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedFinalDate, setSelectedFinalDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showDateFinalPicker, setShowDateFinalPicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [taskList, setTaskList] = useState([]);
     const [taskListBackup,setTaskListBackup]= useState([]);
@@ -58,6 +60,9 @@ export const AuthProviderList = (props) => {
     const handleDateChange = (date) => {
         setSelectedDate(date);
     }
+    const handleDateFinalChange = (date) => (
+        setSelectedFinalDate(date)
+    )
     const handleTimeChange = (date) => {
         setSelectedTime(date);
     }
@@ -67,50 +72,59 @@ export const AuthProviderList = (props) => {
     }, []);
 
     const handleSave = async () => {
-        if (!title || title.trim() === "") {
-            Alert.alert("Atenção", "O nome do remédio não pode ser vazio.");
-            return;
-        }
-        const newItem = {
-            item: item !== 0 ? item : Date.now(),
-            title,
-            description,
-            flag: selectedFlag,
-            timeLimit: new Date(
-                selectedDate.getFullYear(),
-                selectedDate.getMonth(),
-                selectedDate.getDate(),
-                selectedTime.getHours(),
-                selectedTime.getMinutes()
-            ).toISOString()
-        };
-        onClose();
-    
-        try {
-            setLoading(true)
-            const storedData = await AsyncStorage.getItem('taskList');
-            let taskList = storedData ? JSON.parse(storedData) : [];
+    if (!title || title.trim() === "") {
+        Alert.alert("Atenção", "O nome do remédio não pode ser vazio.");
+        return;
+    }
 
-            const itemIndex = taskList.findIndex((task) => task.item === newItem.item);
+    let timeLimit;
+    if (selectedFlag === '1 Por Dia') {
+        // Salva data + hora em ISO
+        timeLimit = new Date(
+            selectedFinalDate.getDate(),
+            selectedFinalDate.getMonth(),
+            selectedFinalDate.getFullYear(),
+            selectedTime.getHours(),
+            selectedTime.getMinutes()
+        ).toISOString();
+    } else {
+        // Salva apenas a data no formato YYYY-MM-DD
+        const year = selectedFinalDate.getFullYear();
+        const month = String(selectedFinalDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedFinalDate.getDate()).padStart(2, '0');
+        timeLimit = `${year}-${month}-${day}`;
+    }
 
-            if (itemIndex >= 0) {
-                taskList[itemIndex] = newItem;
-            } else {
-                taskList.push(newItem);
-            }
-    
-            await AsyncStorage.setItem('taskList', JSON.stringify(taskList));
-            setTaskList(taskList);
-            setTaskListBackup(taskList)
-            setData()
-            
-        } catch (error) {
-            console.error("Erro ao salvar o item:", error);
-            onOpen()
-        }finally{
-            setLoading(false)
-        }
+    const newItem = {
+        item: item !== 0 ? item : Date.now(),
+        title,
+        description,
+        flag: selectedFlag,
+        timeLimit
     };
+    onClose();
+
+    try {
+        setLoading(true)
+        const storedData = await AsyncStorage.getItem('taskList');
+        let taskList = storedData ? JSON.parse(storedData) : [];
+        const itemIndex = taskList.findIndex((task) => task.item === newItem.item);
+        if (itemIndex >= 0) {
+            taskList[itemIndex] = newItem;
+        } else {
+            taskList.push(newItem);
+        }
+        await AsyncStorage.setItem('taskList', JSON.stringify(taskList));
+        setTaskList(taskList); 
+        setTaskListBackup(taskList)
+        setData()
+    } catch (error) {
+        console.error("Erro ao salvar o item:", error);
+        onOpen()
+    } finally {
+        setLoading(false)
+    }
+};
     
     const filter = (t:string) => {
         if(taskList.length == 0)return
@@ -182,7 +196,7 @@ export const AuthProviderList = (props) => {
         setDescription('');
         setSelectedFlag('1 Por Dia');
         setItem(0)
-        setSelectedDate(new Date());
+        setSelectedFinalDate(new Date());
         setSelectedTime(new Date());
     }
 
@@ -246,32 +260,39 @@ export const AuthProviderList = (props) => {
                             onPress={() => setShowDatePicker(true)} 
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999}}>
+                    <TouchableOpacity onPress={()=> setShowDateFinalPicker(true)} style={{width: 130, zIndex:999}}>
                         <Input 
                             title="Data Final"
                             labelStyle={styles.label}
                             editable={false}
-                            value={selectedDate.toLocaleDateString()}
-                            onPress={() => setShowDatePicker(true)} 
+                            value={selectedFinalDate.toLocaleDateString()}
+                            onPress={() => setShowDateFinalPicker(true)} 
                         />
                     </TouchableOpacity>
                 </View>
-                <View  style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
-                    <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
-                        <Input 
-                            title="Horario"
-                            labelStyle={styles.label}
-                            editable={false}
-                            value={selectedTime.toLocaleTimeString()}
-                            onPress={() => setShowTimePicker(true)}
-                        />
-                    </TouchableOpacity>
-                </View>
-                
+                {selectedFlag === '1 Por Dia' ? (
+                    <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
+                        <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
+                            <Input 
+                                title="Horario"
+                                labelStyle={styles.label}
+                                editable={false}
+                                value={selectedTime.toLocaleTimeString()}
+                                onPress={() => setShowTimePicker(true)}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                ) : null}
                 <CustomDateTimePicker 
                     onDateChange={handleDateChange}
                     setShow={setShowDatePicker}
                     show={showDatePicker}
+                    type={'date'}
+                />
+                <CustomDateTimePicker 
+                    onDateChange={handleDateFinalChange}
+                    setShow={setShowDateFinalPicker}
+                    show={showDateFinalPicker}
                     type={'date'}
                 />
                 <CustomDateTimePicker 
@@ -325,7 +346,9 @@ export const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#000'
+        color: '#000',
+        justifyContent:'center',
+        alignItems:'center'
     },
     containerFlag: {
         width: '100%',
