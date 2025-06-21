@@ -3,7 +3,7 @@ import { Modal, Platform, View } from "react-native";
 import { style } from "./styles";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-const CustomDateTimePicker = ({type, onDateChange, show, setShow, value}) => {
+const CustomTimePicker = ({type, onDateChange, show, setShow, value}) => {
     const [date, setDate] = useState(value || new Date());
 
     useEffect(() => {
@@ -20,7 +20,6 @@ const CustomDateTimePicker = ({type, onDateChange, show, setShow, value}) => {
             <View style={style.modalOverlay}
                 onStartShouldSetResponder={() => true}
                 onResponderRelease={(e) => {
-                    // Fecha apenas se clicar fora do container
                     if (e.target === e.currentTarget) setShow(false);
                 }}
             >
@@ -45,4 +44,4 @@ const CustomDateTimePicker = ({type, onDateChange, show, setShow, value}) => {
     )
 }
 
-export default CustomDateTimePicker;
+export default CustomTimePicker;

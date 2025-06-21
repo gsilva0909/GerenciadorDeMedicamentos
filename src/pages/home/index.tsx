@@ -9,7 +9,7 @@ import { Flag } from "../../components/Flag";
 import { themas } from "../../global/themes";
 import { AuthContextList }   from "../../context/authContext_list";
 import { Swipeable } from 'react-native-gesture-handler';
-import { formatDateToBR } from "../../global/funtions";
+import { formatDateToBR, formatDateToBRSemHora } from "../../global/funtions";
 import { AuthContextType, PropCard } from "../../global/Props";
 import LoginWall from "../../assets/login-wall.png";
 
@@ -83,7 +83,11 @@ export default function Home (){
                             <View>
                                 <Text style={style.titleCard}>{item.title}</Text>
                                 <Text style={style.descriptionCard}>{item.description}</Text>
-                                <Text style={style.descriptionCard}>até {formatDateToBR(item.timeLimit)}</Text>
+                                {item.flag === '1 Por Dia' ? (
+                                    <Text style={style.descriptionCard}>até {formatDateToBR(item.dateFinal || item.timeLimit)}</Text>
+                                ) : (
+                                    <Text style={style.descriptionCard}>até {formatDateToBRSemHora(item.dateFinal || item.timeLimit)}</Text>
+                                )}
                             </View>
                         </View>
                         <Flag 

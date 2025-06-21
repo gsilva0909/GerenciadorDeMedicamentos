@@ -6,8 +6,7 @@ import { Input } from "../components/Input";
 import { themas } from "../global/themes";
 import { Flag } from "../components/Flag";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomDateTimePicker from "../components/CustomDateTimePicker";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import CustomDateTimePicker, { CustomTimePicker } from "../components/CustomDateTimePicker/CustomDatePicker";
 import { Loading } from "../components/Loading";
 import { PropCard } from "../global/Props";
 
@@ -25,11 +24,9 @@ export const AuthProviderList = (props) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [selectedFlag, setSelectedFlag] = useState('1 Por Dia');
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [selectedFinalDate, setSelectedFinalDate] = useState(new Date());
-    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(() => new Date());
+    const [selectedTime, setSelectedTime] = useState(() => new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [showDateFinalPicker, setShowDateFinalPicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [taskList, setTaskList] = useState([]);
     const [taskListBackup,setTaskListBackup]= useState([]);
@@ -61,9 +58,6 @@ export const AuthProviderList = (props) => {
     const handleDateChange = (date) => {
         setSelectedDate(date);
     }
-    const handleDateFinalChange = (date) => (
-        setSelectedFinalDate(date)
-    )
     const handleTimeChange = (date) => {
         setSelectedTime(date);
     }
@@ -78,21 +72,26 @@ export const AuthProviderList = (props) => {
         return;
     }
 
+    // Garante que as datas são válidas
+    const safeDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime()) ? selectedDate : new Date();
+    const safeFinalDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime()) ? selectedDate : new Date();
+    const safeTime = selectedTime instanceof Date && !isNaN(selectedTime.getTime()) ? selectedTime : new Date();
+
     let timeLimit;
     if (selectedFlag === '1 Por Dia') {
         // Salva data + hora em ISO
         timeLimit = new Date(
-            selectedFinalDate.getDate(),
-            selectedFinalDate.getMonth(),
-            selectedFinalDate.getFullYear(),
-            selectedTime.getHours(),
-            selectedTime.getMinutes()
+            safeFinalDate.getFullYear(),
+            safeFinalDate.getMonth(),
+            safeFinalDate.getDate(),
+            safeTime.getHours(),
+            safeTime.getMinutes()
         ).toISOString();
     } else {
         // Salva apenas a data no formato YYYY-MM-DD
-        const year = selectedFinalDate.getFullYear();
-        const month = String(selectedFinalDate.getMonth() + 1).padStart(2, '0');
-        const day = String(selectedFinalDate.getDate()).padStart(2, '0');
+        const year = safeFinalDate.getFullYear();
+        const month = String(safeFinalDate.getMonth() + 1).padStart(2, '0');
+        const day = String(safeFinalDate.getDate()).padStart(2, '0');
         timeLimit = `${year}-${month}-${day}`;
     }
 
@@ -101,7 +100,9 @@ export const AuthProviderList = (props) => {
         title,
         description,
         flag: selectedFlag,
-        timeLimit
+        timeLimit,
+        dateInitial: safeDate.toISOString(),
+        dateFinal: safeFinalDate.toISOString()
     };
     onClose();
 
@@ -197,7 +198,7 @@ export const AuthProviderList = (props) => {
         setDescription('');
         setSelectedFlag('1 Por Dia');
         setItem(0)
-        setSelectedFinalDate(new Date());
+        setSelectedDate(new Date());
         setSelectedTime(new Date());
     }
 
@@ -217,7 +218,7 @@ export const AuthProviderList = (props) => {
                         color={themas.Colors.white}
                     />
                 </TouchableOpacity>
-                <Text style={styles.title}>{item != 0?'Editar tarefa':'Criar tarefa'}</Text>
+                <Text style={styles.title}>{item != 0?'Editar tarefa' :'Criar tarefa'}</Text>
                 <TouchableOpacity style={styles.TabItemButtonGreen} onPress={handleSave}>
                     <MaterialIcons 
                         name="check"
@@ -252,9 +253,9 @@ export const AuthProviderList = (props) => {
                     </View>
                 </View>
                 <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
-                    <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999 }}>   
+                    <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999}}>
                         <Input
-                            title="Data Início"
+                            title="Data Final"
                             labelStyle={styles.label}
                             editable={false}
                             value={selectedDate.toLocaleDateString()}
@@ -266,45 +267,28 @@ export const AuthProviderList = (props) => {
                             onDateChange={handleDateChange}
                             value={selectedDate}
                             type="date"
+                            minimumDate={new Date()}
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=> setShowDateFinalPicker(true)} style={{width: 130, zIndex:999}}>
-                        <Input
-                            title="Data Final"
-                            labelStyle={styles.label}
-                            editable={false}
-                            value={selectedFinalDate.toLocaleDateString()}
-                            onPress={() => setShowDateFinalPicker(true)}
-                        />
-                        <CustomDateTimePicker
-                            show={showDateFinalPicker}
-                            setShow={setShowDateFinalPicker}
-                            onDateChange={handleDateFinalChange}
-                            value={selectedFinalDate}
-                            type="date"
-                        />
-                    </TouchableOpacity>
+                    {selectedFlag === '1 Por Dia' ? (
+                            <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
+                                <Input
+                                    title="Horário"
+                                    labelStyle={styles.label}
+                                    editable={false}
+                                    value={selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    onPress={() => setShowTimePicker(true)}
+                                />
+                                <CustomTimePicker
+                                    show={showTimePicker}
+                                    setShow={setShowTimePicker}
+                                    onDateChange={handleTimeChange}
+                                    value={selectedTime}
+                                    type="time"
+                                />
+                            </TouchableOpacity>
+                    ) : null}
                 </View>
-                {selectedFlag === '1 Por Dia' ? (
-                    <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
-                        <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
-                            <Input
-                                title="Horário"
-                                labelStyle={styles.label}
-                                editable={false}
-                                value={selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                onPress={() => setShowTimePicker(true)}
-                            />
-                            <CustomDateTimePicker
-                                show={showTimePicker}
-                                setShow={setShowTimePicker}
-                                onDateChange={handleTimeChange}
-                                value={selectedTime}
-                                type="time"
-                            />
-                        </TouchableOpacity>
-                    </View>
-                ) : null}
             </View>
         </ScrollView>
         </KeyboardAvoidingView>
