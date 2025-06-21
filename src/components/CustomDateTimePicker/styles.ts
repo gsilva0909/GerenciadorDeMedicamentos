@@ -12,9 +12,10 @@ export const style = StyleSheet.create({
     container: {
         width: '80%',
         padding: 26,
-        backgroundColor: '#FFF',
+        backgroundColor: themas.Colors.black,
         elevation: 5,
-        alignItems: 'center'
+        alignItems: 'center',
+        borderRadius: 50
     },
     dateText: {
         fontSize: 16,

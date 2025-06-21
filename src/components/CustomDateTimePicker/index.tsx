@@ -3,20 +3,12 @@ import { Modal, Platform, View } from "react-native";
 import { style } from "./styles";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-const CustomDateTimePicker = ({type, onDateChange, show, setShow}) => {
-    const [date, setDate] = useState(new Date());
+const CustomDateTimePicker = ({type, onDateChange, show, setShow, value}) => {
+    const [date, setDate] = useState(value || new Date());
 
     useEffect(() => {
-        if (onDateChange) {
-            onDateChange(date); // Chama o callback sempre que a data muda
-        }
-    }, [date, onDateChange]);
-
-    const onChange = (event, selectedDate) => {
-        const currentDate = selectedDate || date;
-        setDate(currentDate);
-        setShow(false);
-    };
+        setDate(value || new Date());
+    }, [value, show]);
 
     return(
         <Modal
@@ -25,15 +17,27 @@ const CustomDateTimePicker = ({type, onDateChange, show, setShow}) => {
             visible={show}
             onRequestClose={() => setShow(false)}
         >
-            <View style={style.modalOverlay}>
+            <View style={style.modalOverlay}
+                onStartShouldSetResponder={() => true}
+                onResponderRelease={(e) => {
+                    // Fecha apenas se clicar fora do container
+                    if (e.target === e.currentTarget) setShow(false);
+                }}
+            >
                 <View style={style.container}>
                     <DateTimePicker 
                         testID="dateTimePicker"
                         value={date}
                         mode={type}
                         is24Hour={true}
-                        display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                        onChange={onChange}
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={(event, selectedDate) => {
+                            const currentDate = selectedDate || date;
+                            setDate(currentDate);
+                            if (onDateChange && selectedDate) {
+                                onDateChange(selectedDate);
+                            }
+                        }}
                     />
                 </View>
             </View>

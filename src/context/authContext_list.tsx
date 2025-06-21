@@ -1,14 +1,15 @@
 import React, {createContext, useContext, useEffect, useState, useRef} from "react";
-import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { Alert, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Modalize } from "react-native-modalize";
-import { MaterialIcons, AntDesign } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Input } from "../components/Input";
 import { themas } from "../global/themes";
 import { Flag } from "../components/Flag";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomDateTimePicker from "../components/CustomDateTimePicker";
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Loading } from "../components/Loading";
-import { AuthContextType, PropCard } from "../global/Props";
+import { PropCard } from "../global/Props";
 
 export const AuthContextList:any= createContext({});
 
@@ -251,56 +252,59 @@ export const AuthProviderList = (props) => {
                     </View>
                 </View>
                 <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
-                    <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999 }}>
-                        <Input 
-                            title="Data Inicio"
+                    <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999 }}>   
+                        <Input
+                            title="Data Início"
                             labelStyle={styles.label}
                             editable={false}
                             value={selectedDate.toLocaleDateString()}
-                            onPress={() => setShowDatePicker(true)} 
+                            onPress={() => setShowDatePicker(true)}
+                        />
+                        <CustomDateTimePicker
+                            show={showDatePicker}
+                            setShow={setShowDatePicker}
+                            onDateChange={handleDateChange}
+                            value={selectedDate}
+                            type="date"
                         />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={()=> setShowDateFinalPicker(true)} style={{width: 130, zIndex:999}}>
-                        <Input 
+                        <Input
                             title="Data Final"
                             labelStyle={styles.label}
                             editable={false}
                             value={selectedFinalDate.toLocaleDateString()}
-                            onPress={() => setShowDateFinalPicker(true)} 
+                            onPress={() => setShowDateFinalPicker(true)}
+                        />
+                        <CustomDateTimePicker
+                            show={showDateFinalPicker}
+                            setShow={setShowDateFinalPicker}
+                            onDateChange={handleDateFinalChange}
+                            value={selectedFinalDate}
+                            type="date"
                         />
                     </TouchableOpacity>
                 </View>
                 {selectedFlag === '1 Por Dia' ? (
                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
                         <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
-                            <Input 
-                                title="Horario"
+                            <Input
+                                title="Horário"
                                 labelStyle={styles.label}
                                 editable={false}
-                                value={selectedTime.toLocaleTimeString()}
+                                value={selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 onPress={() => setShowTimePicker(true)}
+                            />
+                            <CustomDateTimePicker
+                                show={showTimePicker}
+                                setShow={setShowTimePicker}
+                                onDateChange={handleTimeChange}
+                                value={selectedTime}
+                                type="time"
                             />
                         </TouchableOpacity>
                     </View>
                 ) : null}
-                <CustomDateTimePicker 
-                    onDateChange={handleDateChange}
-                    setShow={setShowDatePicker}
-                    show={showDatePicker}
-                    type={'date'}
-                />
-                <CustomDateTimePicker 
-                    onDateChange={handleDateFinalChange}
-                    setShow={setShowDateFinalPicker}
-                    show={showDateFinalPicker}
-                    type={'date'}
-                />
-                <CustomDateTimePicker 
-                    onDateChange={handleTimeChange}
-                    setShow={setShowTimePicker}
-                    show={showTimePicker}
-                    type={'time'}
-                />
             </View>
         </ScrollView>
         </KeyboardAvoidingView>
