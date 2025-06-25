@@ -1,7 +1,7 @@
 import React,{ useState,useContext,useRef} from "react";
 import { Text, View, TouchableOpacity, StatusBar, ImageBackground} from "react-native";
 import { style } from "./styles";
-import { Input } from "../../components/Input";
+import { Input } from "../../components/input";
 import { MaterialIcons, AntDesign} from "@expo/vector-icons";
 import { FlatList } from "react-native-gesture-handler";
 import { Ball } from "../../components/Ball";

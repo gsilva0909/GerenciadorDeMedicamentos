@@ -12,6 +12,7 @@ export async function sendLocalNotification({
   date: Date,
   repeatIntervalHours?: number
 }) {
+  const notificationIds: string[] = [];
   if (repeatIntervalHours) {
     // Agendar múltiplas notificações para as próximas 24h
     const now = new Date();
@@ -25,16 +26,19 @@ export async function sendLocalNotification({
     // Agendar para as próximas 24h
     for (let i = 0; i < Math.floor(24 / repeatIntervalHours); i++) {
       const triggerDate = new Date(next.getTime() + i * repeatIntervalHours * 60 * 60 * 1000);
-      await Notify.scheduleNotificationAsync({
+      const id = await Notify.scheduleNotificationAsync({
         content: { title, body },
         trigger: { type: Notify.SchedulableTriggerInputTypes.DATE, date: triggerDate },
       });
+      notificationIds.push(id);
     }
   } else {
     // Agendamento único para o horário definido
-    await Notify.scheduleNotificationAsync({
+    const id = await Notify.scheduleNotificationAsync({
       content: { title, body },
       trigger: { type: Notify.SchedulableTriggerInputTypes.DATE, date },
     });
+    notificationIds.push(id);
   }
+  return notificationIds;
 }

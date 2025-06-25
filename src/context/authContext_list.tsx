@@ -2,7 +2,7 @@ import React, {createContext, useContext, useEffect, useState, useRef} from "rea
 import { Alert, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Modalize } from "react-native-modalize";
 import { MaterialIcons } from '@expo/vector-icons';
-import { Input } from "../components/Input";
+import { Input } from "../components/input";
 import { themas } from "../global/themes";
 import { Flag } from "../components/Flag";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,6 +10,7 @@ import CustomDateTimePicker, { CustomTimePicker } from "../components/CustomDate
 import { Loading } from "../components/Loading";
 import { PropCard } from "../global/Props";
 import { sendLocalNotification } from "../utils/notifications";
+import * as Notify from 'expo-notifications';
 
 export const AuthContextList:any= createContext({});
 
@@ -116,6 +117,20 @@ export const AuthProviderList = (props) => {
             if (selectedFlag === 'Cada 8h') repeatIntervalHours = 8;
         }
 
+        let notificationIds: string[] = [];
+        // Agendar notificação local para o horário definido ou repetitivo
+        try {
+            notificationIds = await sendLocalNotification({
+                title: `Hora do remédio: ${title}`,
+                body: "Não esqueça de tomar seu remédio!",
+                date: notificationDate,
+                repeatIntervalHours
+            });
+        } catch (e) {
+            // fallback para não travar o fluxo
+            notificationIds = [];
+        }
+
         const newItem = {
             item: item !== 0 ? item : Date.now(),
             title,
@@ -123,7 +138,8 @@ export const AuthProviderList = (props) => {
             flag: selectedFlag,
             timeLimit,
             dateInitial: safeDate.toISOString(),
-            dateFinal: safeFinalDate.toISOString()
+            dateFinal: safeFinalDate.toISOString(),
+            notificationIds // novo campo
         };
         onClose();
 
@@ -133,6 +149,12 @@ export const AuthProviderList = (props) => {
             let taskList = storedData ? JSON.parse(storedData) : [];
             const itemIndex = taskList.findIndex((task) => task.item === newItem.item);
             if (itemIndex >= 0) {
+                // Cancelar notificações antigas antes de atualizar
+                if (Array.isArray(taskList[itemIndex].notificationIds)) {
+                    for (const id of taskList[itemIndex].notificationIds) {
+                        await Notify.cancelScheduledNotificationAsync(id);
+                    }
+                }
                 taskList[itemIndex] = newItem;
             } else {
                 taskList.push(newItem);
@@ -194,11 +216,17 @@ export const AuthProviderList = (props) => {
     const handleDelete = async (itemToDelete) => {
         try {
             setLoading(true)
+            // Cancelar notificações agendadas para este item
+            if (Array.isArray(itemToDelete.notificationIds)) {
+                for (const id of itemToDelete.notificationIds) {
+                    await Notify.cancelScheduledNotificationAsync(id);
+                }
+            }
             const storedData = await AsyncStorage.getItem('taskList');
             const taskList = storedData ? JSON.parse(storedData) : [];
             
             const updatedTaskList = taskList.filter(item => item.item !== itemToDelete.item);
-    
+
             await AsyncStorage.setItem('taskList', JSON.stringify(updatedTaskList));
             setTaskList(updatedTaskList);
             setTaskListBackup(updatedTaskList)
