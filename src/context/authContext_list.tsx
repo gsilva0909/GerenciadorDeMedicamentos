@@ -39,6 +39,7 @@ export const AuthProviderList = (props) => {
 
     const onClose = () => {
         modalizeRef?.current.close();
+        setData(); // Limpa o formulário ao fechar o modal
     }
 
     const _renderFlags = () => {
