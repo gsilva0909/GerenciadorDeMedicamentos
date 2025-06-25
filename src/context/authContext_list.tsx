@@ -1,14 +1,15 @@
 import React, {createContext, useContext, useEffect, useState, useRef} from "react";
-import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { Alert, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Modalize } from "react-native-modalize";
-import { MaterialIcons, AntDesign } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Input } from "../components/Input";
 import { themas } from "../global/themes";
 import { Flag } from "../components/Flag";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomDateTimePicker from "../components/CustomDateTimePicker";
+import CustomDateTimePicker, { CustomTimePicker } from "../components/CustomDateTimePicker/CustomDatePicker";
 import { Loading } from "../components/Loading";
-import { AuthContextType, PropCard } from "../global/Props";
+import { PropCard } from "../global/Props";
+import { sendLocalNotification } from "../utils/notifications";
 
 export const AuthContextList:any= createContext({});
 
@@ -24,8 +25,8 @@ export const AuthProviderList = (props) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [selectedFlag, setSelectedFlag] = useState('1 Por Dia');
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(() => new Date());
+    const [selectedTime, setSelectedTime] = useState(() => new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [taskList, setTaskList] = useState([]);
@@ -39,6 +40,7 @@ export const AuthProviderList = (props) => {
 
     const onClose = () => {
         modalizeRef?.current.close();
+        setData(); // Limpa o formulário ao fechar o modal
     }
 
     const _renderFlags = () => {
@@ -71,43 +73,87 @@ export const AuthProviderList = (props) => {
             Alert.alert("Atenção", "O nome do remédio não pode ser vazio.");
             return;
         }
+
+        // Garante que as datas são válidas
+        const safeDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime()) ? selectedDate : new Date();
+        const safeFinalDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime()) ? selectedDate : new Date();
+        const safeTime = selectedTime instanceof Date && !isNaN(selectedTime.getTime()) ? selectedTime : new Date();
+
+        let timeLimit;
+        let notificationDate;
+        let repeatIntervalHours: number | undefined = undefined;
+
+        if (selectedFlag === '1 Por Dia') {
+            timeLimit = new Date(
+                safeFinalDate.getFullYear(),
+                safeFinalDate.getMonth(),
+                safeFinalDate.getDate(),
+                safeTime.getHours(),
+                safeTime.getMinutes()
+            ).toISOString();
+            notificationDate = new Date(
+                safeFinalDate.getFullYear(),
+                safeFinalDate.getMonth(),
+                safeFinalDate.getDate(),
+                safeTime.getHours(),
+                safeTime.getMinutes()
+            );
+        } else {
+            const year = safeFinalDate.getFullYear();
+            const month = String(safeFinalDate.getMonth() + 1).padStart(2, '0');
+            const day = String(safeFinalDate.getDate()).padStart(2, '0');
+            timeLimit = `${year}-${month}-${day}`;
+            notificationDate = new Date(
+                safeFinalDate.getFullYear(),
+                safeFinalDate.getMonth(),
+                safeFinalDate.getDate(),
+                safeTime.getHours(),
+                safeTime.getMinutes()
+            );
+            // Definir intervalo de repetição conforme a tag
+            if (selectedFlag === 'Cada 2h') repeatIntervalHours = 2;
+            if (selectedFlag === 'Cada 4h') repeatIntervalHours = 4;
+            if (selectedFlag === 'Cada 8h') repeatIntervalHours = 8;
+        }
+
         const newItem = {
             item: item !== 0 ? item : Date.now(),
             title,
             description,
             flag: selectedFlag,
-            timeLimit: new Date(
-                selectedDate.getFullYear(),
-                selectedDate.getMonth(),
-                selectedDate.getDate(),
-                selectedTime.getHours(),
-                selectedTime.getMinutes()
-            ).toISOString()
+            timeLimit,
+            dateInitial: safeDate.toISOString(),
+            dateFinal: safeFinalDate.toISOString()
         };
         onClose();
-    
+
         try {
             setLoading(true)
             const storedData = await AsyncStorage.getItem('taskList');
             let taskList = storedData ? JSON.parse(storedData) : [];
-
             const itemIndex = taskList.findIndex((task) => task.item === newItem.item);
-
             if (itemIndex >= 0) {
                 taskList[itemIndex] = newItem;
             } else {
                 taskList.push(newItem);
             }
-    
             await AsyncStorage.setItem('taskList', JSON.stringify(taskList));
-            setTaskList(taskList);
+            setTaskList(taskList); 
             setTaskListBackup(taskList)
             setData()
-            
+
+            // Agendar notificação local para o horário definido ou repetitivo
+            await sendLocalNotification({
+                title: `Hora do remédio: ${title}`,
+                body: "Não esqueça de tomar seu remédio!",
+                date: notificationDate,
+                repeatIntervalHours
+            });
+
         } catch (error) {
             console.error("Erro ao salvar o item:", error);
             onOpen()
-        }finally{
+        } finally {
             setLoading(false)
         }
     };
@@ -202,7 +248,7 @@ export const AuthProviderList = (props) => {
                         color={themas.Colors.white}
                     />
                 </TouchableOpacity>
-                <Text style={styles.title}>{item != 0?'Editar tarefa':'Criar tarefa'}</Text>
+                <Text style={styles.title}>{item != 0?'Editar tarefa' :'Criar tarefa'}</Text>
                 <TouchableOpacity style={styles.TabItemButtonGreen} onPress={handleSave}>
                     <MaterialIcons 
                         name="check"
@@ -237,49 +283,57 @@ export const AuthProviderList = (props) => {
                     </View>
                 </View>
                 <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
-                    <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999 }}>
-                        <Input 
-                            title="Data Inicio"
-                            labelStyle={styles.label}
-                            editable={false}
-                            value={selectedDate.toLocaleDateString()}
-                            onPress={() => setShowDatePicker(true)} 
-                        />
-                    </TouchableOpacity>
                     <TouchableOpacity onPress={()=> setShowDatePicker(true)} style={{width: 130, zIndex:999}}>
-                        <Input 
+                        <Input
                             title="Data Final"
                             labelStyle={styles.label}
                             editable={false}
                             value={selectedDate.toLocaleDateString()}
-                            onPress={() => setShowDatePicker(true)} 
+                            onPress={() => setShowDatePicker(true)}
+                        />
+                        <CustomDateTimePicker
+                            show={showDatePicker}
+                            setShow={setShowDatePicker}
+                            onDateChange={handleDateChange}
+                            value={selectedDate}
+                            type="date"
+                            minimumDate={new Date()}
                         />
                     </TouchableOpacity>
+                    {selectedFlag === '1 Por Dia' ? (
+                        <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
+                            <Input
+                                title="Horário"
+                                labelStyle={styles.label}
+                                editable={false}
+                                value={selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                onPress={() => setShowTimePicker(true)}
+                            />
+                            <CustomTimePicker
+                                show={showTimePicker}
+                                setShow={setShowTimePicker}
+                                onDateChange={handleTimeChange}
+                                value={selectedTime}
+                                type="time"
+                            />
+                        </TouchableOpacity>
+                    ) : <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
+                            <Input
+                                title="Horário Inicial"
+                                labelStyle={styles.label}
+                                editable={false}
+                                value={selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                onPress={() => setShowTimePicker(true)}
+                            />
+                            <CustomTimePicker
+                                show={showTimePicker}
+                                setShow={setShowTimePicker}
+                                onDateChange={handleTimeChange}
+                                value={selectedTime}
+                                type="time"
+                            />
+                        </TouchableOpacity>}
                 </View>
-                <View  style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
-                    <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
-                        <Input 
-                            title="Horario"
-                            labelStyle={styles.label}
-                            editable={false}
-                            value={selectedTime.toLocaleTimeString()}
-                            onPress={() => setShowTimePicker(true)}
-                        />
-                    </TouchableOpacity>
-                </View>
-                
-                <CustomDateTimePicker 
-                    onDateChange={handleDateChange}
-                    setShow={setShowDatePicker}
-                    show={showDatePicker}
-                    type={'date'}
-                />
-                <CustomDateTimePicker 
-                    onDateChange={handleTimeChange}
-                    setShow={setShowTimePicker}
-                    show={showTimePicker}
-                    type={'time'}
-                />
             </View>
         </ScrollView>
         </KeyboardAvoidingView>
@@ -325,7 +379,9 @@ export const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#000'
+        color: '#000',
+        justifyContent:'center',
+        alignItems:'center'
     },
     containerFlag: {
         width: '100%',
