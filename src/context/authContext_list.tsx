@@ -67,66 +67,66 @@ export const AuthProviderList = (props) => {
     }, []);
 
     const handleSave = async () => {
-    if (!title || title.trim() === "") {
-        Alert.alert("Atenção", "O nome do remédio não pode ser vazio.");
-        return;
-    }
-
-    // Garante que as datas são válidas
-    const safeDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime()) ? selectedDate : new Date();
-    const safeFinalDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime()) ? selectedDate : new Date();
-    const safeTime = selectedTime instanceof Date && !isNaN(selectedTime.getTime()) ? selectedTime : new Date();
-
-    let timeLimit;
-    if (selectedFlag === '1 Por Dia') {
-        // Salva data + hora em ISO
-        timeLimit = new Date(
-            safeFinalDate.getFullYear(),
-            safeFinalDate.getMonth(),
-            safeFinalDate.getDate(),
-            safeTime.getHours(),
-            safeTime.getMinutes()
-        ).toISOString();
-    } else {
-        // Salva apenas a data no formato YYYY-MM-DD
-        const year = safeFinalDate.getFullYear();
-        const month = String(safeFinalDate.getMonth() + 1).padStart(2, '0');
-        const day = String(safeFinalDate.getDate()).padStart(2, '0');
-        timeLimit = `${year}-${month}-${day}`;
-    }
-
-    const newItem = {
-        item: item !== 0 ? item : Date.now(),
-        title,
-        description,
-        flag: selectedFlag,
-        timeLimit,
-        dateInitial: safeDate.toISOString(),
-        dateFinal: safeFinalDate.toISOString()
-    };
-    onClose();
-
-    try {
-        setLoading(true)
-        const storedData = await AsyncStorage.getItem('taskList');
-        let taskList = storedData ? JSON.parse(storedData) : [];
-        const itemIndex = taskList.findIndex((task) => task.item === newItem.item);
-        if (itemIndex >= 0) {
-            taskList[itemIndex] = newItem;
-        } else {
-            taskList.push(newItem);
+        if (!title || title.trim() === "") {
+            Alert.alert("Atenção", "O nome do remédio não pode ser vazio.");
+            return;
         }
-        await AsyncStorage.setItem('taskList', JSON.stringify(taskList));
-        setTaskList(taskList); 
-        setTaskListBackup(taskList)
-        setData()
-    } catch (error) {
-        console.error("Erro ao salvar o item:", error);
-        onOpen()
-    } finally {
-        setLoading(false)
-    }
-};
+
+        // Garante que as datas são válidas
+        const safeDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime()) ? selectedDate : new Date();
+        const safeFinalDate = selectedDate instanceof Date && !isNaN(selectedDate.getTime()) ? selectedDate : new Date();
+        const safeTime = selectedTime instanceof Date && !isNaN(selectedTime.getTime()) ? selectedTime : new Date();
+
+        let timeLimit;
+        if (selectedFlag === '1 Por Dia') {
+            // Salva data + hora em ISO
+            timeLimit = new Date(
+                safeFinalDate.getFullYear(),
+                safeFinalDate.getMonth(),
+                safeFinalDate.getDate(),
+                safeTime.getHours(),
+                safeTime.getMinutes()
+            ).toISOString();
+        } else {
+            // Salva apenas a data no formato YYYY-MM-DD
+            const year = safeFinalDate.getFullYear();
+            const month = String(safeFinalDate.getMonth() + 1).padStart(2, '0');
+            const day = String(safeFinalDate.getDate()).padStart(2, '0');
+            timeLimit = `${year}-${month}-${day}`;
+        }
+
+        const newItem = {
+            item: item !== 0 ? item : Date.now(),
+            title,
+            description,
+            flag: selectedFlag,
+            timeLimit,
+            dateInitial: safeDate.toISOString(),
+            dateFinal: safeFinalDate.toISOString()
+        };
+        onClose();
+
+        try {
+            setLoading(true)
+            const storedData = await AsyncStorage.getItem('taskList');
+            let taskList = storedData ? JSON.parse(storedData) : [];
+            const itemIndex = taskList.findIndex((task) => task.item === newItem.item);
+            if (itemIndex >= 0) {
+                taskList[itemIndex] = newItem;
+            } else {
+                taskList.push(newItem);
+            }
+            await AsyncStorage.setItem('taskList', JSON.stringify(taskList));
+            setTaskList(taskList); 
+            setTaskListBackup(taskList)
+            setData()
+        } catch (error) {
+            console.error("Erro ao salvar o item:", error);
+            onOpen()
+        } finally {
+            setLoading(false)
+        }
+    };
     
     const filter = (t:string) => {
         if(taskList.length == 0)return
@@ -271,23 +271,38 @@ export const AuthProviderList = (props) => {
                         />
                     </TouchableOpacity>
                     {selectedFlag === '1 Por Dia' ? (
-                            <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
-                                <Input
-                                    title="Horário"
-                                    labelStyle={styles.label}
-                                    editable={false}
-                                    value={selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    onPress={() => setShowTimePicker(true)}
-                                />
-                                <CustomTimePicker
-                                    show={showTimePicker}
-                                    setShow={setShowTimePicker}
-                                    onDateChange={handleTimeChange}
-                                    value={selectedTime}
-                                    type="time"
-                                />
-                            </TouchableOpacity>
-                    ) : null}
+                        <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
+                            <Input
+                                title="Horário"
+                                labelStyle={styles.label}
+                                editable={false}
+                                value={selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                onPress={() => setShowTimePicker(true)}
+                            />
+                            <CustomTimePicker
+                                show={showTimePicker}
+                                setShow={setShowTimePicker}
+                                onDateChange={handleTimeChange}
+                                value={selectedTime}
+                                type="time"
+                            />
+                        </TouchableOpacity>
+                    ) : <TouchableOpacity onPress={() => setShowTimePicker(true)} style={{width: 120}}>
+                            <Input
+                                title="Horário Inicial"
+                                labelStyle={styles.label}
+                                editable={false}
+                                value={selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                onPress={() => setShowTimePicker(true)}
+                            />
+                            <CustomTimePicker
+                                show={showTimePicker}
+                                setShow={setShowTimePicker}
+                                onDateChange={handleTimeChange}
+                                value={selectedTime}
+                                type="time"
+                            />
+                        </TouchableOpacity>}
                 </View>
             </View>
         </ScrollView>
