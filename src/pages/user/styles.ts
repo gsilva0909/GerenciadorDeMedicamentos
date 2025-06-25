@@ -9,7 +9,7 @@ export const style = StyleSheet.create({
         paddingHorizontal: 20,
     },
     header: {
-        width: Dimensions.get("window").height / 2.2,
+        width: Dimensions.get("window").height / 2.0,
         height: Dimensions.get("window").height / 4,
         backgroundColor: themas.Colors.red,
         justifyContent: "center",

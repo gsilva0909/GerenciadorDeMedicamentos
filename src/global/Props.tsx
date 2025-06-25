@@ -11,7 +11,8 @@ export type PropCard = {
 	flag:PropFlags,
 	item: number, 
 	timeLimit:string,
-	title: string
+	title: string,
+	dateFinal?: string // nova propriedade opcional para data final
 }
 
 type PropFlags = '1 Por Dia'|'Cada 2h'|'Cada 4h'|'Cada 8h';
