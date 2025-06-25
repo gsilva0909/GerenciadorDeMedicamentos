@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomDateTimePicker, { CustomTimePicker } from "../components/CustomDateTimePicker/CustomDatePicker";
 import { Loading } from "../components/Loading";
 import { PropCard } from "../global/Props";
+import { sendLocalNotification } from "../utils/notifications";
 
 export const AuthContextList:any= createContext({});
 
@@ -79,8 +80,10 @@ export const AuthProviderList = (props) => {
         const safeTime = selectedTime instanceof Date && !isNaN(selectedTime.getTime()) ? selectedTime : new Date();
 
         let timeLimit;
+        let notificationDate;
+        let repeatIntervalHours: number | undefined = undefined;
+
         if (selectedFlag === '1 Por Dia') {
-            // Salva data + hora em ISO
             timeLimit = new Date(
                 safeFinalDate.getFullYear(),
                 safeFinalDate.getMonth(),
@@ -88,12 +91,29 @@ export const AuthProviderList = (props) => {
                 safeTime.getHours(),
                 safeTime.getMinutes()
             ).toISOString();
+            notificationDate = new Date(
+                safeFinalDate.getFullYear(),
+                safeFinalDate.getMonth(),
+                safeFinalDate.getDate(),
+                safeTime.getHours(),
+                safeTime.getMinutes()
+            );
         } else {
-            // Salva apenas a data no formato YYYY-MM-DD
             const year = safeFinalDate.getFullYear();
             const month = String(safeFinalDate.getMonth() + 1).padStart(2, '0');
             const day = String(safeFinalDate.getDate()).padStart(2, '0');
             timeLimit = `${year}-${month}-${day}`;
+            notificationDate = new Date(
+                safeFinalDate.getFullYear(),
+                safeFinalDate.getMonth(),
+                safeFinalDate.getDate(),
+                safeTime.getHours(),
+                safeTime.getMinutes()
+            );
+            // Definir intervalo de repetição conforme a tag
+            if (selectedFlag === 'Cada 2h') repeatIntervalHours = 2;
+            if (selectedFlag === 'Cada 4h') repeatIntervalHours = 4;
+            if (selectedFlag === 'Cada 8h') repeatIntervalHours = 8;
         }
 
         const newItem = {
@@ -121,6 +141,15 @@ export const AuthProviderList = (props) => {
             setTaskList(taskList); 
             setTaskListBackup(taskList)
             setData()
+
+            // Agendar notificação local para o horário definido ou repetitivo
+            await sendLocalNotification({
+                title: `Hora do remédio: ${title}`,
+                body: "Não esqueça de tomar seu remédio!",
+                date: notificationDate,
+                repeatIntervalHours
+            });
+
         } catch (error) {
             console.error("Erro ao salvar o item:", error);
             onOpen()

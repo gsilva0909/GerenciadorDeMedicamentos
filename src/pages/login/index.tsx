@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { style } from "./styles";
 import Logo from "../../assets/logo.png";
 import { Input } from "../../components/Input";
@@ -8,6 +8,7 @@ import {MaterialIcons,Octicons} from '@expo/vector-icons';
 import { Button } from "../../components/Button";
 import { useNavigation,NavigationProp  } from '@react-navigation/native';
 import LoginWall from "../../assets/login-wall.png";
+import * as Notifications from 'expo-notifications';
 
 export default function Login() {
 
@@ -16,6 +17,11 @@ export default function Login() {
     const [password, setPassword] = useState('a');
     const [loading, setLoading] = useState(false);
     const [showPassword,setShowPassword] = useState(false);
+
+    // Solicita permissão para notificações ao abrir a tela
+        useEffect(() => {
+            Notifications.requestPermissionsAsync();
+        }, []);
 
     async function getLogin() { 
         try {
